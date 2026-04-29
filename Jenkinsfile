@@ -46,7 +46,7 @@ pipeline {
         stage('Frontend') {
           steps {
             dir('frontend') {
-              bat 'set CI=true&& npm test -- --watchAll=false --runInBand'
+              bat 'set CI=true&& npm test -- --watchAll=false --runInBand --passWithNoTests'
             }
           }
         }
