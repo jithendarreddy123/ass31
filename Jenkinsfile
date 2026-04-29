@@ -20,7 +20,7 @@ pipeline {
     stage('Install Backend') {
       steps {
         dir('backend') {
-          sh 'npm ci'
+          bat 'npm ci'
         }
       }
     }
@@ -28,7 +28,7 @@ pipeline {
     stage('Install Frontend') {
       steps {
         dir('frontend') {
-          sh 'npm ci'
+          bat 'npm ci'
         }
       }
     }
@@ -38,7 +38,7 @@ pipeline {
         stage('Backend') {
           steps {
             dir('backend') {
-              sh 'npm test'
+              bat 'npm test'
             }
           }
         }
@@ -46,7 +46,7 @@ pipeline {
         stage('Frontend') {
           steps {
             dir('frontend') {
-              sh 'CI=true npm test -- --watchAll=false --runInBand'
+              bat 'set CI=true&& npm test -- --watchAll=false --runInBand'
             }
           }
         }
@@ -56,7 +56,7 @@ pipeline {
     stage('Build Frontend') {
       steps {
         dir('frontend') {
-          sh 'npm run build'
+          bat 'npm run build'
         }
       }
     }
@@ -69,8 +69,8 @@ pipeline {
           env.BACKEND_IMAGE = "${prefix}lab27-backend:${env.BUILD_NUMBER}"
           env.FRONTEND_IMAGE = "${prefix}lab27-frontend:${env.BUILD_NUMBER}"
         }
-        sh 'docker build -t "$BACKEND_IMAGE" ./backend'
-        sh 'docker build -t "$FRONTEND_IMAGE" ./frontend'
+        bat 'docker build -t "%BACKEND_IMAGE%" .\\backend'
+        bat 'docker build -t "%FRONTEND_IMAGE%" .\\frontend'
       }
     }
 
@@ -83,9 +83,9 @@ pipeline {
       }
       steps {
         withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-          sh 'echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin'
-          sh 'docker push "$BACKEND_IMAGE"'
-          sh 'docker push "$FRONTEND_IMAGE"'
+          bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USER% --password-stdin'
+          bat 'docker push "%BACKEND_IMAGE%"'
+          bat 'docker push "%FRONTEND_IMAGE%"'
         }
       }
     }
@@ -93,7 +93,7 @@ pipeline {
 
   post {
     always {
-      sh 'docker logout || true'
+      bat 'docker logout || exit /b 0'
     }
   }
 }
