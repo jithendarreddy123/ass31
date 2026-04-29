@@ -1,0 +1,45 @@
+services:
+
+  backend:
+    build: ./backend
+    container_name: lab27-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/myAppDB
+      - PORT=5000
+    depends_on:
+      - mongo
+    networks:
+      - lab27-network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: http://localhost:5000/api
+    container_name: lab27-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - lab27-network
+
+  mongo:
+    image: mongo:6
+    container_name: lab27-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - lab27-network
+
+volumes:
+  mongo-data:
+
+networks:
+  lab27-network:
+    driver: bridge
